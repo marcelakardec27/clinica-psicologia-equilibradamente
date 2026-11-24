@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agendar — Equilibradamente</title>
+  <meta name="description" content="Solicite um horário de psicoterapia na Equilibradamente. O pedido fica pendente até a psicóloga aceitar.">
+  <meta property="og:title" content="Agendar sessão — Equilibradamente">
+  <meta property="og:description" content="Dê o primeiro passo em direção ao seu cuidado.">
+  <meta property="og:image" content="assets/img/milena-hero.jpeg">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="assets/css/styles.css?v=fotos">
+</head>
+<body data-root="">
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="site-header">
+    <div class="barra">
+      <a class="marca" href="index.html" aria-label="Equilibradamente, início"><img src="assets/img/logo.png" alt=""></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+      <nav class="nav-principal" id="menu" aria-label="Principal">
+        <a href="index.html">Início</a>
+        <a href="sobre.html">Sobre a clínica</a>
+        <a href="equipa.html">Sobre mim</a>
+        <a href="servicos.html">Atendimentos</a>
+        <a href="faq.html">Dúvidas frequentes</a>
+        <a href="contactos.html">Contato</a>
+        <a class="botao botao-primario" href="agendar.html" aria-current="page">Agendar sessão</a>
+      </nav>
+    </div>
+  </header>
+  <main id="conteudo">
+    <header class="barra pagina-topo">
+      <p class="eyebrow">Agendamento</p>
+      <h1>Dê o primeiro passo em direção ao seu cuidado.</h1>
+      <p class="lead">Você não precisa saber exatamente por onde começar. Podemos construir esse caminho juntos.</p>
+      <p>Escolha um horário de Brasília. O pedido envia um e-mail para você e para a clínica. A sessão só fica marcada depois do aceite, e a confirmação segue por e-mail.</p>
+      <p class="aviso">Este formulário não pede diagnóstico nem histórico clínico. Em sofrimento intenso ou risco, procure um serviço de emergência. No Brasil, CVV 188 e SAMU 192.</p>
+    </header>
+    <section class="secao" id="confirmar-horario" hidden>
+      <div class="barra bloco">
+        <h2>Confirmar horário</h2>
+        <p id="confirmar-resumo"></p>
+        <button class="botao botao-primario" type="button" id="confirmar-envio">Enviar confirmação ao contato</button>
+        <p class="form-nota" id="confirmar-nota" hidden></p>
+      </div>
+    </section>
+    <section class="secao">
+      <div class="barra split">
+        <div class="agenda" data-fill="calendar"></div>
+        <form class="formulario" id="triagem" novalidate>
+          <h2>Agendar atendimento</h2>
+          <label>Nome completo
+            <input name="nome" type="text" autocomplete="name" placeholder="Seu nome" required>
+          </label>
+          <label>Telefone / WhatsApp
+            <input name="telefone" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
+          </label>
+          <label>E-mail
+            <input name="email" type="email" autocomplete="email" placeholder="Seu e-mail" required>
+          </label>
+          <label>Para quem é o atendimento?
+            <select name="paraquem" required>
+              <option value="">Escolher</option>
+              <option>Para mim</option>
+              <option>Para uma criança</option>
+              <option>Para um adolescente</option>
+              <option>Para outro adulto</option>
+            </select>
+          </label>
+          <label>Modalidade desejada
+            <select name="modalidade" required>
+              <option value="">Escolher</option>
+              <option>Presencial</option>
+              <option>On-line</option>
+            </select>
+          </label>
+          <label>Horário inicial
+            <input name="horario" type="datetime-local" step="60" required>
+          </label>
+          <p class="meta" id="fim-sessao">Duração padrão de 60 minutos. Basta indicar o horário inicial.</p>
+          <label class="linha-check">
+            <input name="privacidade" type="checkbox" required>
+            <span>Li a <a href="legal/privacidade.html">Política de Privacidade</a> e estou ciente do tratamento dos meus dados para fins de agendamento.</span>
+          </label>
+          <button class="botao botao-primario" type="submit">Solicitar agendamento</button>
+          <p class="form-nota" hidden></p>
+        </form>
+      </div>
+    </section>
+    <section class="secao">
+      <div class="barra chamada">
+        <div>
+          <h2>Prefere conversar antes de agendar?</h2>
+          <p>Entre em contato pelo WhatsApp para esclarecer suas dúvidas.</p>
+        </div>
+        <a class="botao botao-primario" data-fill="whatsapp" data-rotulo="Fale comigo pelo WhatsApp" href="#">WhatsApp</a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="barra footer-grelha">
+      <div>
+        <p class="marca">Equilibradamente</p>
+        <p>Clínica de Psicologia<br>CNPJ 69.300.379/0001-51</p>
+        <p>Milena Silva Kardec<br>Psicóloga | CRP 09/23599</p>
+        <p>Rua Paraná, quadra 09, lote 14<br>Setor Presidente Kennedy, Luziânia – GO<br>Presencial e on-line</p>
+      </div>
+      <div>
+        <p class="eyebrow">Links úteis</p>
+        <a href="servicos.html">Atendimentos</a>
+        <a href="agendar.html">Agendamento</a>
+        <a data-fill="whatsapp" data-rotulo="WhatsApp" href="#">WhatsApp</a>
+        <a data-fill="instagram" href="#">Instagram</a>
+      </div>
+      <div>
+        <p class="eyebrow">Legal</p>
+        <a href="legal/privacidade.html">Política de Privacidade</a>
+        <a href="legal/cookies.html">Política de Cookies</a>
+        <a href="legal/termos.html">Termos de Serviço</a>
+      </div>
+    </div>
+    <div class="barra rodape-base">
+      <p>© <span class="ano">2026</span> Equilibradamente Clínica de Psicologia. Este site é informativo e não substitui o acompanhamento psicológico. Não é canal de emergência.</p>
+    </div>
+  </footer>
+  <script src="assets/js/site-config.js?v=email"></script>
+  <script src="assets/js/main.js?v=confirmar"></script>
+</body>
+</html>
