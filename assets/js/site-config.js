@@ -6,10 +6,10 @@ window.SITE = {
   whatsapp: "5561995001446",
   whatsappRotulo: "(61) 99500-1446",
   whatsappTexto: "Olá, Milena! Conheci seu trabalho pelo site da Equilibradamente e gostaria de saber mais sobre a psicoterapia e os horários disponíveis para atendimento.",
-  endereco: "Rua Paraná, quadra 09, lote 14, Setor Presidente Kennedy, Luziânia – GO",
+  endereco: "Rua Paraná, nº 62, quadra 09, lote 14, Setor Presidente Kennedy, Luziânia – GO",
   calendarEmbed: "",
-  mapaEmbed: "https://maps.google.com/maps?q=Rua%20Paran%C3%A1%2C%20quadra%2009%2C%20lote%2014%2C%20Setor%20Presidente%20Kennedy%2C%20Luzi%C3%A2nia%20-%20GO&hl=pt-BR&z=16&output=embed",
-  mapaRota: "https://www.google.com/maps/dir/?api=1&destination=Rua%20Paran%C3%A1%2C%20quadra%2009%2C%20lote%2014%2C%20Setor%20Presidente%20Kennedy%2C%20Luzi%C3%A2nia%20-%20GO",
+  mapaEmbed: "https://maps.google.com/maps?q=Rua%20Paran%C3%A1%2C%20n%C2%BA%2062%2C%20quadra%2009%2C%20lote%2014%2C%20Setor%20Presidente%20Kennedy%2C%20Luzi%C3%A2nia%20-%20GO&hl=pt-BR&z=16&output=embed",
+  mapaRota: "https://www.google.com/maps/dir/?api=1&destination=Rua%20Paran%C3%A1%2C%20n%C2%BA%2062%2C%20quadra%2009%2C%20lote%2014%2C%20Setor%20Presidente%20Kennedy%2C%20Luzi%C3%A2nia%20-%20GO",
   redes: {
     instagram: "https://www.instagram.com/milenakardecpsi/",
     instagramRotulo: "@milenakardecpsi",
