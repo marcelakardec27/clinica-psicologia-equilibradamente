@@ -235,7 +235,7 @@
   function mensagensAgenda(form) {
     var nome = valueOf(form, "nome");
     var inicio = valueOf(form, "horario");
-    var duracao = Number(site.duracaoMinutos) || 60;
+    var duracao = Number(site.duracaoMinutos) || 50;
     var quando = fimLegivel(inicio, 0);
     var fim = fimLegivel(inicio, duracao);
     var modalidade = valueOf(form, "modalidade");
@@ -266,7 +266,7 @@
 
   function urlConvite(form, confirmado) {
     var inicio = valueOf(form, "horario");
-    var duracao = Number(site.duracaoMinutos) || 60;
+    var duracao = Number(site.duracaoMinutos) || 50;
     var nome = valueOf(form, "nome");
     var base = [
       confirmado ? "Horário confirmado." : "Pedido pendente de aprovação. A sessão só fica marcada quando este horário for aceito.",
@@ -316,7 +316,7 @@
 
   function linkConfirmacao(form) {
     var inicio = valueOf(form, "horario");
-    var duracao = Number(site.duracaoMinutos) || 60;
+    var duracao = Number(site.duracaoMinutos) || 50;
     var q = new URLSearchParams({
       confirmar: "1",
       nome: valueOf(form, "nome"),
@@ -384,12 +384,12 @@
     var note = form.querySelector(".form-nota");
     var avisoFim = document.getElementById("fim-sessao");
     var campoHora = form.elements.horario;
-    var duracao = Number(site.duracaoMinutos) || 60;
+    var duracao = Number(site.duracaoMinutos) || 50;
 
     function atualizarFim() {
       if (!avisoFim) return;
       if (!campoHora || !campoHora.value) {
-        avisoFim.textContent = "Duração padrão de " + duracao + " minutos. Basta indicar o horário inicial.";
+        avisoFim.textContent = "Duração padrão de " + duracao + " minutos, contados a partir do início da sessão.";
         return;
       }
       avisoFim.textContent = "Horário final: " + fimLegivel(campoHora.value, duracao) + " (" + duracao + " minutos).";
@@ -583,7 +583,7 @@
       var contato = valueOf(form, "email");
       var nome = valueOf(form, "nome");
       var quando = fimLegivel(valueOf(form, "horario"), 0);
-      var fim = fimLegivel(valueOf(form, "horario"), Number(site.duracaoMinutos) || 60);
+      var fim = fimLegivel(valueOf(form, "horario"), Number(site.duracaoMinutos) || 50);
       var destino = urlConvite(form, true);
       var janela = abrirAgenda(destino);
       agenda.disabled = true;

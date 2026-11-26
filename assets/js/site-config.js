@@ -2,7 +2,7 @@
    whatsapp: só dígitos, com DDI. calendarEmbed e mapaEmbed: URL https do iframe. */
 window.SITE = {
   email: "milena.kardec@gmail.com",
-  duracaoMinutos: 60,
+  duracaoMinutos: 50,
   whatsapp: "5561995001446",
   whatsappRotulo: "(61) 99500-1446",
   whatsappTexto: "Olá, Milena! Conheci seu trabalho pelo site da Equilibradamente e gostaria de saber mais sobre a psicoterapia e os horários disponíveis para atendimento.",
