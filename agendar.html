@@ -34,14 +34,16 @@
       <p class="eyebrow">Agendamento</p>
       <h1>Dê o primeiro passo em direção ao seu cuidado.</h1>
       <p class="lead">Você não precisa saber exatamente por onde começar. Podemos construir esse caminho juntos.</p>
-      <p>Escolha um horário de Brasília. O formulário envia a solicitação por e-mail para você e para a clínica, sem precisar de agenda do Google. Se preferir, a mesma solicitação segue pelo WhatsApp. A sessão só fica marcada depois do aceite.</p>
+      <p>Escolha um horário de Brasília. O formulário envia a solicitação por e-mail para a clínica. Se preferir, a mesma solicitação segue pelo WhatsApp. A sessão só fica marcada depois que a psicóloga aceitar o horário na agenda da clínica.</p>
       <p class="aviso">Este formulário não pede diagnóstico nem histórico clínico. Em sofrimento intenso ou risco, procure um serviço de emergência. No Brasil, CVV 188 e SAMU 192.</p>
     </header>
     <section class="secao" id="confirmar-horario" hidden>
       <div class="barra bloco">
-        <h2>Confirmar horário</h2>
+        <h2>Marcar esta sessão</h2>
         <p id="confirmar-resumo"></p>
-        <button class="botao botao-primario" type="button" id="confirmar-envio">Enviar confirmação ao contato</button>
+        <p>A marcação é feita na Sintropia, a mesma agenda em que a sessão é confirmada, remarcada, cancelada ou bloqueada. O lembrete sai por esse serviço, quando o aviso estiver ativo.</p>
+        <a class="botao botao-primario" id="confirmar-envio" href="https://sintropia.me/sistema" target="_blank" rel="noopener noreferrer">Marcar na Sintropia</a>
+        <a class="botao" id="lembrete-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden>Enviar lembrete pelo WhatsApp</a>
         <p class="form-nota" id="confirmar-nota" hidden></p>
       </div>
     </section>
@@ -124,7 +126,7 @@
       <p>© <span class="ano">2026</span> Equilibradamente Clínica de Psicologia. Este site é informativo e não substitui o acompanhamento psicológico. Não é canal de emergência.</p>
     </div>
   </footer>
-  <script src="assets/js/site-config.js?v=email"></script>
-  <script src="assets/js/main.js?v=pedido"></script>
+  <script src="assets/js/site-config.js?v=sintropia"></script>
+  <script src="assets/js/main.js?v=cliente"></script>
 </body>
 </html>

@@ -137,10 +137,17 @@
           "O calendário é um conteúdo do Google. Aceite os cookies opcionais para vê-lo aqui, ou solicite o horário pelo formulário."
         ));
       } else {
-        agenda.appendChild(emptyPanel(
+        var painel = emptyPanel(
           "Horários sob aprovação",
-          "A solicitação sai pelo formulário, por e-mail ou WhatsApp. Não é preciso ter agenda do Google. A sessão só fica marcada depois que a psicóloga aceitar o horário."
-        ));
+          "A solicitação sai pelo formulário, por e-mail ou WhatsApp. A sessão só fica marcada quando a psicóloga aceitar o horário na agenda da clínica."
+        );
+        var gestao = document.createElement("a");
+        gestao.href = site.sintropiaUrl || "https://sintropia.me/sistema";
+        gestao.target = "_blank";
+        gestao.rel = "noopener noreferrer";
+        gestao.textContent = "Área da profissional";
+        painel.appendChild(gestao);
+        agenda.appendChild(painel);
       }
     }
 
@@ -220,18 +227,6 @@
     return field ? String(field.value || "").trim() : "";
   }
 
-  function carimbo(valor, minutosExtra) {
-    var partes = String(valor || "").split("T");
-    if (partes.length < 2) return "";
-    var data = partes[0].split("-").map(Number);
-    var hora = partes[1].split(":").map(Number);
-    var base = Date.UTC(data[0], data[1] - 1, data[2], hora[0], hora[1] + (minutosExtra || 0));
-    var dt = new Date(base);
-    function dois(n) { return String(n).padStart(2, "0"); }
-    return dt.getUTCFullYear() + dois(dt.getUTCMonth() + 1) + dois(dt.getUTCDate()) +
-      "T" + dois(dt.getUTCHours()) + dois(dt.getUTCMinutes()) + "00";
-  }
-
   function mensagensAgenda(form) {
     var nome = valueOf(form, "nome");
     var inicio = valueOf(form, "horario");
@@ -246,79 +241,16 @@
       "Horário solicitado: " + quando + " até " + fim + ".",
       "Modalidade: " + modalidade + ".",
       "",
-      "Vamos analisar o pedido e responder com a confirmação do horário. A sessão só fica marcada depois desse aceite.",
-      "Não é preciso ter agenda do Google. A confirmação chega por este e-mail."
+      "Vamos analisar o pedido. A consulta só fica marcada depois do aceite na agenda da clínica."
     ].join("\n");
-    var confirmado = [
-      "Olá, " + nome + ".",
-      "",
-      "Seu horário está confirmado.",
-      "Sessão: " + quando + " até " + fim + ".",
-      "Modalidade: " + modalidade + ".",
-      "",
-      "O compromisso está confirmado neste convite da agenda.",
-      "",
-      "Milena Silva Kardec",
-      "Equilibradamente Clínica de Psicologia"
-    ].join("\n");
-    return { recebido: recebido, confirmado: confirmado };
-  }
-
-  function urlConvite(form, confirmado) {
-    var inicio = valueOf(form, "horario");
-    var duracao = Number(site.duracaoMinutos) || 50;
-    var nome = valueOf(form, "nome");
-    var base = [
-      confirmado ? "Horário confirmado." : "Pedido pendente de aprovação. A sessão só fica marcada quando este horário for aceito.",
-      "A agenda pública não mostra o nome da paciente.",
-      "",
-      "Nome: " + nome,
-      "E-mail: " + valueOf(form, "email"),
-      "Telefone: " + valueOf(form, "telefone"),
-      "Para quem: " + (valueOf(form, "paraquem") || "—"),
-      "Modalidade: " + valueOf(form, "modalidade"),
-      "Duração: " + duracao + " minutos",
-      "Término: " + fimLegivel(inicio, duracao)
-    ];
-    var params = new URLSearchParams({
-      action: "TEMPLATE",
-      text: (confirmado ? "Confirmado · " : "A aprovar · ") + nome,
-      dates: carimbo(inicio, 0) + "/" + carimbo(inicio, duracao),
-      ctz: "America/Sao_Paulo",
-      details: base.join("\n"),
-      location: valueOf(form, "modalidade"),
-      add: convidadosDoPedido(form)
-    });
-    var textos = mensagensAgenda(form);
-    params.set("details", confirmado
-      ? base.concat(["", textos.confirmado]).join("\n")
-      : base.concat([
-        "",
-        "E-mail ao contato, pedido em análise:",
-        textos.recebido,
-        "",
-        "E-mail após o aceite e a confirmação:",
-        textos.confirmado
-      ]).join("\n"));
-    return "https://calendar.google.com/calendar/render?" + params.toString();
-  }
-
-  function convidadosDoPedido(form) {
-    var lista = [];
-    [site.email, valueOf(form, "email")].forEach(function (email) {
-      var limpo = String(email || "").trim();
-      if (!limpo) return;
-      if (lista.some(function (item) { return item.toLowerCase() === limpo.toLowerCase(); })) return;
-      lista.push(limpo);
-    });
-    return lista.join(",");
+    return { recebido: recebido };
   }
 
   function linkConfirmacao(form) {
     var inicio = valueOf(form, "horario");
     var duracao = Number(site.duracaoMinutos) || 50;
     var q = new URLSearchParams({
-      confirmar: "1",
+      gerir: "1",
       nome: valueOf(form, "nome"),
       email: valueOf(form, "email"),
       telefone: valueOf(form, "telefone"),
@@ -341,7 +273,7 @@
       "Para quem: " + (valueOf(form, "paraquem") || "—"),
       "Modalidade: " + valueOf(form, "modalidade"),
       "Horário: " + fimLegivel(inicio, 0) + " até " + fimLegivel(inicio, duracao) + ".",
-      "Não tenho agenda do Google. Peço a confirmação por esta mensagem."
+      "Peço a confirmação deste horário."
     ].join("\n");
   }
 
@@ -349,6 +281,34 @@
     var numero = digits(site.whatsapp);
     if (!numero) return "";
     return "https://wa.me/" + numero + "?text=" + encodeURIComponent(textoSolicitacao(form));
+  }
+
+  function numeroWhatsapp(valor) {
+    var digitos = digits(valor);
+    if (!digitos) return "";
+    if (digitos.length <= 11) digitos = "55" + digitos;
+    return digitos;
+  }
+
+  function textoLembrete(nome, quando, fim) {
+    var parteInicio = String(quando || "").split(" às ");
+    var parteFim = String(fim || "").split(" às ");
+    var data = parteInicio[0] || "";
+    var horaInicio = parteInicio[1] || "";
+    var horaFim = parteFim[1] || "";
+    var horario = quando || "";
+    if (data && horaInicio && horaFim) horario = data + ", das " + horaInicio + " às " + horaFim;
+    return [
+      "Olá, " + nome + ". Aqui é a Equilibradamente.",
+      "A sua consulta está marcada para " + horario + ".",
+      "Pode confirmar a presença?"
+    ].join("\n");
+  }
+
+  function urlWhatsappPara(numero, texto) {
+    var destino = numeroWhatsapp(numero);
+    if (!destino || !texto) return "";
+    return "https://wa.me/" + destino + "?text=" + encodeURIComponent(texto);
   }
 
   function enviarEmail(campos) {
@@ -380,12 +340,6 @@
       clearTimeout(limite);
       throw erro;
     });
-  }
-
-  function abrirAgenda(url) {
-    var janela = window.open(url, "_blank");
-    if (janela) janela.opener = null;
-    return janela;
   }
 
   function fimLegivel(valor, minutos) {
@@ -428,15 +382,15 @@
       if (!site.email) {
         if (note) {
           note.hidden = false;
-          note.textContent = "O pedido está preenchido, mas o e-mail da agenda ainda não foi indicado. Até lá, o convite não é criado.";
+          note.textContent = "O pedido está preenchido, mas o e-mail da clínica ainda não foi indicado.";
         }
         return;
       }
       var botao = form.querySelector("[type='submit']");
       var textos = mensagensAgenda(form);
-      var url = urlConvite(form);
       var confirmar = linkConfirmacao(form);
       var whatsapp = urlWhatsappPedido(form);
+      var agendaClinica = site.sintropiaUrl || "https://sintropia.me/sistema";
       var popup = mostrarPedido(form, textos, whatsapp);
       if (note) escreverRecado(note, whatsapp);
       if (botao) {
@@ -446,7 +400,7 @@
       enviarEmail({
         _subject: "Pedido de agendamento em análise — " + valueOf(form, "nome"),
         _replyto: valueOf(form, "email"),
-        _cc: valueOf(form, "email"),
+        _autoresponse: textos.recebido,
         _template: "box",
         _captcha: "false",
         email: valueOf(form, "email"),
@@ -455,10 +409,11 @@
         modalidade: valueOf(form, "modalidade"),
         horario: fimLegivel(valueOf(form, "horario"), 0) + " até " + fimLegivel(valueOf(form, "horario"), duracao),
         mensagem_ao_contato: textos.recebido,
-        mensagem_apos_aceite: textos.confirmado,
         solicitacao: textoSolicitacao(form),
-        aceitar_e_avisar: confirmar,
-        convite_da_agenda: url
+        ver_pedido: confirmar,
+        agenda_da_clinica: agendaClinica,
+        lembrete_whatsapp: urlWhatsappPara(valueOf(form, "telefone"), textoLembrete(valueOf(form, "nome"), fimLegivel(valueOf(form, "horario"), 0), fimLegivel(valueOf(form, "horario"), duracao))),
+        como_gerir: "A pessoa atendida recebe só o aviso de pedido em análise. A mensagem de consulta marcada fica no link lembrete_whatsapp, só neste e-mail da clínica, e só sai se a profissional abrir o link e carregar em enviar depois de lançar a sessão na Sintropia."
       }).then(function (dados) {
         popup.atualizar(dados && dados.message);
       }).catch(function (erro) {
@@ -474,7 +429,7 @@
 
   function mountConfirmacao() {
     var params = new URLSearchParams(window.location.search);
-    if (params.get("confirmar") !== "1") return;
+    if (params.get("gerir") !== "1" && params.get("confirmar") !== "1") return;
     var caixa = document.getElementById("confirmar-horario");
     var resumo = document.getElementById("confirmar-resumo");
     var botao = document.getElementById("confirmar-envio");
@@ -484,68 +439,33 @@
     var email = params.get("email") || "";
     var quando = params.get("quando") || "";
     var fim = params.get("fim") || "";
-      var modalidade = params.get("modalidade") || "";
-      var inicio = params.get("inicio") || "";
-      caixa.hidden = false;
+    var modalidade = params.get("modalidade") || "";
+    var telefone = params.get("telefone") || "";
+    var lembrete = document.getElementById("lembrete-whatsapp");
+    caixa.hidden = false;
+    botao.href = site.sintropiaUrl || "https://sintropia.me/sistema";
+    if (lembrete) {
+      var destino = urlWhatsappPara(telefone, textoLembrete(nome, quando, fim));
+      if (destino) {
+        lembrete.href = destino;
+        lembrete.hidden = false;
+      }
+    }
     if (resumo) {
       resumo.textContent = nome + " · " + email + " · " + quando + " até " + fim + " · " + modalidade;
     }
+    if (nota) {
+      nota.hidden = false;
+      nota.textContent = "Marque a sessão na Sintropia. O lembrete pelo WhatsApp abre a mensagem pronta para a pessoa atendida; falta carregar em enviar.";
+    }
     caixa.scrollIntoView({ block: "start" });
-    botao.addEventListener("click", function () {
-      botao.disabled = true;
-      var texto = [
-        "Olá, " + nome + ".",
-        "",
-        "Seu horário está confirmado.",
-        "Sessão: " + quando + " até " + fim + ".",
-        "Modalidade: " + modalidade + ".",
-        "",
-        "O compromisso foi aceito na agenda da Equilibradamente.",
-        "",
-        "Milena Silva Kardec",
-        "Equilibradamente Clínica de Psicologia"
-      ].join("\n");
-      if (inicio) {
-        abrirAgenda(urlConvite({
-          elements: {
-            nome: { value: nome },
-            email: { value: email },
-            telefone: { value: params.get("telefone") || "" },
-            modalidade: { value: modalidade },
-            horario: { value: inicio },
-            paraquem: { value: "" }
-          }
-        }, true));
-      }
-      enviarEmail({
-        _subject: "Horário confirmado — " + nome,
-        _replyto: site.email,
-        _cc: email,
-        _template: "box",
-        _captcha: "false",
-        email: email,
-        nome: nome,
-        mensagem: texto
-      }).then(function () {
-        if (nota) {
-          nota.hidden = false;
-          nota.textContent = "E-mail de confirmação enviado para " + email + " e para " + site.email + ". Na agenda, salve o evento Confirmado e apague o bloco A aprovar deste mesmo horário.";
-        }
-      }).catch(function () {
-        botao.disabled = false;
-        if (nota) {
-          nota.hidden = false;
-          nota.textContent = "A agenda abriu, mas o e-mail de confirmação não saiu. Tente novamente em instantes.";
-        }
-      });
-    });
   }
 
   function escreverRecado(note, whatsapp) {
     note.hidden = false;
     note.textContent = "";
     var sucesso = document.createElement("p");
-    sucesso.textContent = "Solicitação enviada pelo formulário. Não é preciso ter agenda do Google. A sessão só fica marcada depois do aceite da psicóloga.";
+    sucesso.textContent = "Pedido enviado. A sessão só fica marcada quando for lançada na Sintropia.";
     note.appendChild(sucesso);
     if (!whatsapp) return;
     var link = document.createElement("a");
@@ -570,7 +490,7 @@
     titulo.id = "pedido-titulo";
     titulo.textContent = "Solicitação enviada";
     var texto = document.createElement("p");
-    texto.textContent = "O formulário envia o pedido por e-mail. Não é preciso ter agenda do Google. A sessão só fica marcada depois do aceite da psicóloga.";
+    texto.textContent = "O formulário envia o pedido. A marcação da sessão é feita na Sintropia, a agenda da clínica.";
     var estado = document.createElement("p");
     estado.className = "meta";
     estado.textContent = "Enviando a solicitação para o contato e para a clínica…";
@@ -594,13 +514,6 @@
       wa.textContent = "Enviar pelo WhatsApp";
       acoes.appendChild(wa);
     }
-    var guardar = document.createElement("a");
-    guardar.className = "botao";
-    guardar.href = urlConvite(form);
-    guardar.target = "_blank";
-    guardar.rel = "noopener noreferrer";
-    guardar.textContent = "Guardar na agenda do Google";
-    acoes.appendChild(guardar);
     acoes.appendChild(fechar);
     caixa.appendChild(titulo);
     caixa.appendChild(texto);
@@ -635,7 +548,7 @@
           estado.textContent = "O primeiro envio precisa de uma confirmação. Abra a caixa milena.kardec@gmail.com, ative o formulário e envie o pedido outra vez.";
           return;
         }
-        estado.textContent = "A solicitação foi enviada por e-mail, sem usar a agenda do Google. A confirmação chega depois do aceite.";
+        estado.textContent = "O pedido foi enviado para a clínica. A sessão é marcada na Sintropia.";
       }
     };
   }
