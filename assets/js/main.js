@@ -139,7 +139,7 @@
       } else {
         agenda.appendChild(emptyPanel(
           "Horários sob aprovação",
-          "O pedido consulta a agenda e entra como convite, sem expor nomes de pacientes. A sessão só fica marcada depois que a psicóloga aceitar o horário."
+          "A solicitação sai pelo formulário, por e-mail ou WhatsApp. Não é preciso ter agenda do Google. A sessão só fica marcada depois que a psicóloga aceitar o horário."
         ));
       }
     }
@@ -247,7 +247,7 @@
       "Modalidade: " + modalidade + ".",
       "",
       "Vamos analisar o pedido e responder com a confirmação do horário. A sessão só fica marcada depois desse aceite.",
-      "O horário está no convite da agenda enviado junto com este e-mail."
+      "Não é preciso ter agenda do Google. A confirmação chega por este e-mail."
     ].join("\n");
     var confirmado = [
       "Olá, " + nome + ".",
@@ -328,6 +328,27 @@
       fim: fimLegivel(inicio, duracao)
     });
     return new URL("agendar.html?" + q.toString(), window.location.href).href;
+  }
+
+  function textoSolicitacao(form) {
+    var inicio = valueOf(form, "horario");
+    var duracao = Number(site.duracaoMinutos) || 50;
+    return [
+      "Olá, Milena! Quero solicitar um agendamento na Equilibradamente.",
+      "Nome: " + valueOf(form, "nome"),
+      "Telefone: " + valueOf(form, "telefone"),
+      "E-mail: " + valueOf(form, "email"),
+      "Para quem: " + (valueOf(form, "paraquem") || "—"),
+      "Modalidade: " + valueOf(form, "modalidade"),
+      "Horário: " + fimLegivel(inicio, 0) + " até " + fimLegivel(inicio, duracao) + ".",
+      "Não tenho agenda do Google. Peço a confirmação por esta mensagem."
+    ].join("\n");
+  }
+
+  function urlWhatsappPedido(form) {
+    var numero = digits(site.whatsapp);
+    if (!numero) return "";
+    return "https://wa.me/" + numero + "?text=" + encodeURIComponent(textoSolicitacao(form));
   }
 
   function enviarEmail(campos) {
@@ -415,8 +436,9 @@
       var textos = mensagensAgenda(form);
       var url = urlConvite(form);
       var confirmar = linkConfirmacao(form);
-      var popup = mostrarPedido(form, textos);
-      if (note) escreverRecado(note, textos, confirmar);
+      var whatsapp = urlWhatsappPedido(form);
+      var popup = mostrarPedido(form, textos, whatsapp);
+      if (note) escreverRecado(note, whatsapp);
       if (botao) {
         botao.disabled = true;
         botao.textContent = "Enviando…";
@@ -434,6 +456,7 @@
         horario: fimLegivel(valueOf(form, "horario"), 0) + " até " + fimLegivel(valueOf(form, "horario"), duracao),
         mensagem_ao_contato: textos.recebido,
         mensagem_apos_aceite: textos.confirmado,
+        solicitacao: textoSolicitacao(form),
         aceitar_e_avisar: confirmar,
         convite_da_agenda: url
       }).then(function (dados) {
@@ -518,35 +541,22 @@
     });
   }
 
-  function escreverRecado(note, textos, url) {
+  function escreverRecado(note, whatsapp) {
     note.hidden = false;
     note.textContent = "";
     var sucesso = document.createElement("p");
-    sucesso.textContent = "Iremos analisar seu pedido de agendamento e você receberá uma mensagem de confirmação com o seu horário.";
-    var tituloEmail = document.createElement("p");
-    tituloEmail.textContent = "Mensagem ao contato";
-    var email = document.createElement("p");
-    email.className = "pedido-email";
-    email.textContent = textos.recebido;
-    var tituloAceite = document.createElement("p");
-    tituloAceite.textContent = "Mensagem após o aceite";
-    var aceite = document.createElement("p");
-    aceite.className = "pedido-email";
-    aceite.textContent = textos.confirmado;
+    sucesso.textContent = "Solicitação enviada pelo formulário. Não é preciso ter agenda do Google. A sessão só fica marcada depois do aceite da psicóloga.";
+    note.appendChild(sucesso);
+    if (!whatsapp) return;
     var link = document.createElement("a");
-    link.href = url;
+    link.href = whatsapp;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = "Confirmar horário na agenda";
-    note.appendChild(sucesso);
-    note.appendChild(tituloEmail);
-    note.appendChild(email);
-    note.appendChild(tituloAceite);
-    note.appendChild(aceite);
+    link.textContent = "Enviar a mesma solicitação pelo WhatsApp";
     note.appendChild(link);
   }
 
-  function mostrarPedido(form, textos) {
+  function mostrarPedido(form, textos, whatsapp) {
     var aberto = document.querySelector(".pedido-popup");
     if (aberto) aberto.remove();
     var fundo = document.createElement("div");
@@ -558,12 +568,12 @@
     caixa.className = "pedido-caixa";
     var titulo = document.createElement("h2");
     titulo.id = "pedido-titulo";
-    titulo.textContent = "Pedido enviado";
+    titulo.textContent = "Solicitação enviada";
     var texto = document.createElement("p");
-    texto.textContent = "Iremos analisar seu pedido de agendamento e você receberá uma mensagem de confirmação com o seu horário.";
+    texto.textContent = "O formulário envia o pedido por e-mail. Não é preciso ter agenda do Google. A sessão só fica marcada depois do aceite da psicóloga.";
     var estado = document.createElement("p");
     estado.className = "meta";
-    estado.textContent = "Enviando a mensagem para o contato e para a clínica…";
+    estado.textContent = "Enviando a solicitação para o contato e para a clínica…";
     var tituloEmail = document.createElement("p");
     tituloEmail.textContent = "Mensagem ao contato";
     var email = document.createElement("p");
@@ -571,53 +581,26 @@
     email.textContent = textos.recebido;
     var acoes = document.createElement("div");
     acoes.className = "acoes";
-    var agenda = document.createElement("button");
-    agenda.type = "button";
-    agenda.className = "botao botao-primario";
-    agenda.textContent = "Confirmar horário";
     var fechar = document.createElement("button");
     fechar.type = "button";
     fechar.className = "botao";
     fechar.textContent = "Fechar";
-    agenda.addEventListener("click", function () {
-      var contato = valueOf(form, "email");
-      var nome = valueOf(form, "nome");
-      var quando = fimLegivel(valueOf(form, "horario"), 0);
-      var fim = fimLegivel(valueOf(form, "horario"), Number(site.duracaoMinutos) || 50);
-      var destino = urlConvite(form, true);
-      var janela = abrirAgenda(destino);
-      agenda.disabled = true;
-      texto.textContent = "Horário confirmado para " + quando + " até " + fim + ". Na agenda, salve o evento Confirmado · " + nome + " e apague o bloco A aprovar deste mesmo horário.";
-      estado.textContent = janela
-        ? "A agenda abriu numa nova aba. Enviando o e-mail de confirmação para " + contato + "…"
-        : "O navegador bloqueou a nova aba. Use o link abaixo e salve o evento Confirmado.";
-      if (!janela && !acoes.querySelector("a")) {
-        var link = document.createElement("a");
-        link.className = "botao botao-primario";
-        link.href = destino;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "Abrir horário confirmado";
-        acoes.insertBefore(link, agenda);
-      }
-      caixa.scrollTop = 0;
-      enviarEmail({
-        _subject: "Horário confirmado — " + nome,
-        _replyto: site.email,
-        _cc: contato,
-        _template: "box",
-        _captcha: "false",
-        email: contato,
-        nome: nome,
-        mensagem: textos.confirmado
-      }).then(function () {
-        estado.textContent = "E-mail de confirmação enviado para " + contato + " e para a clínica.";
-      }).catch(function () {
-        agenda.disabled = false;
-        estado.textContent = "A agenda foi aberta, mas o e-mail de confirmação não saiu. Pode clicar em Confirmar horário outra vez.";
-      });
-    });
-    acoes.appendChild(agenda);
+    if (whatsapp) {
+      var wa = document.createElement("a");
+      wa.className = "botao botao-primario";
+      wa.href = whatsapp;
+      wa.target = "_blank";
+      wa.rel = "noopener noreferrer";
+      wa.textContent = "Enviar pelo WhatsApp";
+      acoes.appendChild(wa);
+    }
+    var guardar = document.createElement("a");
+    guardar.className = "botao";
+    guardar.href = urlConvite(form);
+    guardar.target = "_blank";
+    guardar.rel = "noopener noreferrer";
+    guardar.textContent = "Guardar na agenda do Google";
+    acoes.appendChild(guardar);
     acoes.appendChild(fechar);
     caixa.appendChild(titulo);
     caixa.appendChild(texto);
@@ -645,14 +628,14 @@
       atualizar: function (aviso, falhou) {
         if (!estado.isConnected) return;
         if (falhou) {
-          estado.textContent = "O pedido ficou registrado nesta página, mas o e-mail não saiu. " + (aviso || "Tente novamente em instantes.");
+          estado.textContent = "O e-mail não saiu. " + (aviso || "Envie a mesma solicitação pelo WhatsApp.");
           return;
         }
         if (aviso && /activat|confirm your form|needs activation/i.test(aviso)) {
           estado.textContent = "O primeiro envio precisa de uma confirmação. Abra a caixa milena.kardec@gmail.com, ative o formulário e envie o pedido outra vez.";
           return;
         }
-        estado.textContent = "A mensagem foi enviada para o e-mail do contato e para a clínica. A confirmação do horário sai depois do aceite.";
+        estado.textContent = "A solicitação foi enviada por e-mail, sem usar a agenda do Google. A confirmação chega depois do aceite.";
       }
     };
   }
